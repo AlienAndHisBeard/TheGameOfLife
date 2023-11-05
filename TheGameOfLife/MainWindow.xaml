@@ -1,0 +1,72 @@
+﻿<Window x:Class="TheGameOfLife.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TheGameOfLife" xmlns:utils="clr-namespace:TheGameOfLife.Utils"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="500" Width="850" MinWidth="800" MinHeight="450">
+    <Window.Resources>
+        <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource {x:Type TextBlock}}" x:Key="MultiBound">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Path=GameOn}" Value="True">
+                    <Setter Property="Text">
+                        <Setter.Value>
+                            <MultiBinding StringFormat="Map Size: {0}x{1} | Gen {2} | Cells: {3} | Births: {4} | Deaths: {5}">
+                                <Binding Path="GameSizeX" />
+                                <Binding Path="GameSizeY" />
+                                <Binding Path="GenNumber" />
+                                <Binding Path="CellCount" />
+                                <Binding Path="BirthCount" />
+                                <Binding Path="DeathCount" />
+                            </MultiBinding>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Path=GameOn}" Value="False">
+                    <Setter Property="Text">
+                        <Setter.Value>
+                            Give yours (or use default) parameters and start a new game
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+    <Grid Height="Auto">
+        <Grid Height="30" VerticalAlignment="Top" Margin="0,0,0,0" Background="White">
+            <TextBlock Height="13px" Width="80" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,0,320,0" Text="Underpop" TextAlignment="Center" FontFamily="Arial" FontWeight="Bold" FontSize="11"/>
+            <TextBox Name="Underpop" Height="17px" Width="80" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,13,0,0" TextAlignment="Center"></TextBox>
+            
+            <TextBlock Height="13px" Width="80" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="80,0,240,0" Text="Overpop" TextAlignment="Center" FontFamily="Arial" FontWeight="Bold" FontSize="11"/>
+            <TextBox Name="Overpop" Height="17px" Width="80" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="80,13,0,0" TextAlignment="Center"></TextBox>
+
+            <TextBlock Height="13px" Width="80" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="160,0,160,0" Text="Reproducepop" TextAlignment="Center" FontFamily="Arial" FontWeight="Bold" FontSize="11"/>
+            <TextBox Name="Reproducepop" Height="17px" Width="80" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="160,13,0,0" TextAlignment="Center"></TextBox>
+
+            <TextBlock Height="30px" Width="Auto" Background="LightGray" VerticalAlignment="Top" Margin="240,0,160,0" Style="{StaticResource MultiBound}" TextAlignment="Center" FontFamily="Arial" FontWeight="Bold" FontSize="13"/>
+
+            <TextBlock Height="13px" Width="80" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,80,0" Text="Map size X/Y:" TextAlignment="Center" FontFamily="Arial" FontWeight="Bold" FontSize="11"/>
+            <TextBox Name="SizeX" Height="17px" Width="40" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,13,120,0" TextAlignment="Center"></TextBox>
+            <TextBox Name="SizeY" Height="17px" Width="40" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,13,80,0" TextAlignment="Center"></TextBox>
+        </Grid>
+        <Button Name="New" Command="{Binding NewGameCommand}" Width="80" Height="30px" HorizontalAlignment="Right" VerticalAlignment="Top">New Game</Button>
+
+        <Grid Name="GameGrid" ShowGridLines="True" Height="Auto" Margin="0,30,0,30"/>
+        <Grid DockPanel.Dock="Bottom" Height="30px" Width="Auto" Background="LightGray" VerticalAlignment="Bottom" Name="CommandPanel">
+            <Button Command="{Binding DevolveCommand}" Width="80" Height="30px" HorizontalAlignment="Left">DevolveOne</Button>
+            <Button Command="{Binding EvolveCommand}" Width="80" Height="30px" HorizontalAlignment="Left" Margin="85,0,0,0">EvolveOne</Button>
+            <Button Command="{Binding StartEvolvingCommand}" Width="80" Height="30px" HorizontalAlignment="Left" Margin="170,0,0,0" >StartEvolving</Button>
+            <Button Command="{Binding StopEvolvingCommand}" Width="80" Height="30px" HorizontalAlignment="Left" Margin="255,0,0,0">StopEvolving</Button>
+
+            <Button Command="{Binding SaveCommand}" Width="80" Height="30px" HorizontalAlignment="Left" Margin="420,0,0,0">Save</Button>
+            <Button Command="{Binding LoadCommand}" Width="80" Height="30px" HorizontalAlignment="Left" Margin="505,0,0,0">Load</Button>
+
+            <Button Command="{Binding ResetCommand}" Width="100px" Height="30px" RenderTransformOrigin="2.294,0.615" HorizontalAlignment="Right" VerticalAlignment="Top">Reset</Button>
+
+        </Grid>
+
+
+    </Grid>
+
+</Window>

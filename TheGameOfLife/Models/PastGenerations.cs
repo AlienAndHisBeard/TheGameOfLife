@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Evolution = TheGameOfLife.Models.Structs.Structs.Evolution;
 
 namespace TheGameOfLife.Models
 {
     public class PastGenerations
     {
+        private readonly uint _maxGenerations = 1024;
         private List<Evolution> GenerationList { get; set; }
 
         public PastGenerations() 
@@ -18,8 +16,15 @@ namespace TheGameOfLife.Models
 
         public Evolution GetLast() { return GenerationList.Last(); }
         public bool Remove(Evolution evolution) { return GenerationList.Remove(evolution); }
-        public void Add(Evolution evolution) { GenerationList.Add(evolution); }
+        public void Add(Evolution evolution) 
+        { 
+            GenerationList.Add(evolution); 
+            if( GenerationList.Count >= _maxGenerations) 
+            {
+                GenerationList.RemoveAt(0);
+            }
+        }
 
-        public bool IsEmpty() { return GenerationList.Count() <= 0; }
+        public bool IsEmpty() { return GenerationList.Count <= 0; }
     }
 }

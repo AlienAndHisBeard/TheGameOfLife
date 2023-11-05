@@ -1,9 +1,5 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TheGameOfLife.Models.Structs
 {
@@ -108,7 +104,7 @@ namespace TheGameOfLife.Models.Structs
             /// <summary>
             /// List of tuples representing a single cell
             /// </summary>
-            public List<Tuple<uint, uint, bool>> Cells { get; set; }
+            public List<Tuple<uint, uint, int>> Cells { get; set; }
 
             /// <summary>
             /// Initialises a new instance of a Evolution
@@ -117,7 +113,7 @@ namespace TheGameOfLife.Models.Structs
             /// <param name="cells">List of tuples representing a single cell</param>
             /// <param name="gameSettings"></param>
             /// <param name="mapSize"></param>
-            public Evolution(EvolutionResults parameters, List<Tuple<uint, uint, bool>> cells, GameSettings gameSettings, MapSize mapSize)
+            public Evolution(EvolutionResults parameters, List<Tuple<uint, uint, int>> cells, GameSettings gameSettings, MapSize mapSize)
             {
                 Parameters = parameters;
                 Cells = cells;

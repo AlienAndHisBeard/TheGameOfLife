@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
+using System.Drawing;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -15,17 +13,21 @@ using TheGameOfLife.Managers;
 using TheGameOfLife.Models;
 using TheGameOfLife.Utils;
 using static TheGameOfLife.Models.Structs.Structs;
+using Brushes = System.Windows.Media.Brushes;
 
 namespace TheGameOfLife.ViewModels
 {
     public class GenerationViewModel : INotifyPropertyChanged
     {
         private static readonly string saveFilePath = "./save.json";
+        private static readonly string screenshotPath = "./screenshot.png";
+
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private CancellationTokenSource cancellationTokenSource;
         private CancellationToken cancellationToken;
         private Task task;
+        private ColourConverter colourConverter;
 
         protected void OnPropertyChanged([CallerMemberName] string memberName = "")
         {
@@ -44,10 +46,8 @@ namespace TheGameOfLife.ViewModels
         private int cellCount;
         public int CellCount { get { return cellCount; } private set { cellCount = value; OnPropertyChanged(); } }
 
-
         private int genNumber;
         public int GenNumber { get {  return genNumber; } private set {  genNumber = value; OnPropertyChanged(); } }
-
 
         private int birthCount;
         public int BirthCount { get { return birthCount; } private set { birthCount = value; OnPropertyChanged(); } }
@@ -60,6 +60,9 @@ namespace TheGameOfLife.ViewModels
 
         private bool gameOn = false;
         public bool GameOn { get { return gameOn; } private set {  gameOn = value; OnPropertyChanged(); } }
+
+        private string info = "";
+        public string Info { get { return info; } private set {  info = value; OnPropertyChanged(); } }
         #endregion Display Bindings
 
         #region Params Bindings
@@ -90,7 +93,8 @@ namespace TheGameOfLife.ViewModels
         public RelayCommand<object> NewGameCommand { get; private set; }
         public RelayCommand<object> SaveCommand { get; private set; }
         public RelayCommand<object> LoadCommand { get; private set; }
-
+        public RelayCommand<object> ScreenshotCommand { get; private set; }
+        public RelayCommand<object> ToggleColoursCommand { get; private set; }
 
         #endregion Commands
 
@@ -110,14 +114,43 @@ namespace TheGameOfLife.ViewModels
             NewGameCommand = new RelayCommand<object>(_ => CreateNewGame(), _ => CanCreateNewGame());
             LoadCommand = new RelayCommand<object>(_ => LoadGame(), _ => CanLoadGame());
             SaveCommand = new RelayCommand<object>(_ => SaveGame(), _ => CanSaveGame());
+            ScreenshotCommand = new RelayCommand<object>(_ => SaveGameToPNG(), _ => CanSaveGame());
+            ToggleColoursCommand = new RelayCommand<object>(_ => ToggleColours(), _ => CanToggleColours());
 
+            colourConverter = new ColourConverter(Brushes.Green, Brushes.Green, Brushes.White, Brushes.White);
         }
 
         #region Save and Load commands
+        private void ToggleColours()
+        {
+            if(colourConverter.BirthColour == Brushes.LightGreen)
+            {
+                colourConverter.BirthColour = Brushes.Green;
+                colourConverter.DeathColour = Brushes.White;
+                Info = "Turned off colours for births and deaths";
+            }
+            else
+            {
+                colourConverter.BirthColour = Brushes.LightGreen;
+                colourConverter.DeathColour = Brushes.LightSlateGray;
+                Info = "Turned on colours for births and deaths";
+            }
+        }
+        private bool CanToggleColours()
+        {
+            return true;
+        }
         private void SaveGame()
         {
             Busy = true;
-            _manager.SaveGame(saveFilePath);
+            Info = _manager.SaveGame(saveFilePath);
+            Busy = false;
+        }
+
+        private void SaveGameToPNG()
+        {
+            Busy = true;
+            _manager.SaveGameToPNG(screenshotPath);
             Busy = false;
         }
 
@@ -128,7 +161,9 @@ namespace TheGameOfLife.ViewModels
         private void LoadGame()
         {
             Busy = true;
-            Evolution evolution = SaveFileHandler.ReadFromJsonFile(saveFilePath);
+            Tuple<string, Evolution?> result = SaveFileHandler.ReadFromJsonFile(saveFilePath);
+            if (result.Item2 == null) { Info = result.Item1; Busy = false; return; }
+            Evolution evolution = (Evolution)result.Item2;
             _manager = new EvolutionManager(new Generation(evolution));
             StopEvolving();
             _manager.Results = evolution.Parameters;
@@ -139,6 +174,7 @@ namespace TheGameOfLife.ViewModels
             BuildGrid(ClearGameGrid());
             GameOn = true;
             Busy = false;
+            Info = "Succesfully loaded the game";
         }
 
         private bool CanLoadGame()
@@ -183,6 +219,7 @@ namespace TheGameOfLife.ViewModels
             
             Busy = false;
             CommandManager.InvalidateRequerySuggested();
+            Info = "Stopped evolution";
         }
 
         private bool CanStopEvolving()
@@ -198,6 +235,7 @@ namespace TheGameOfLife.ViewModels
 
             UpdateResults();
             UpdateGameSettings();
+            Info = "Loaded previous evolution";
         }
 
         private bool CanDevolve()
@@ -207,9 +245,12 @@ namespace TheGameOfLife.ViewModels
 
         private void Evolve()
         {
+            Busy = true;
             UpdateGameSettingsInManager();
             _manager.Evolve();
             UpdateResults();
+            Busy = false;
+            Info = $"Evolved to the {_manager.CurrentGenNumber} generation";
         }
 
         private bool CanEvolve()
@@ -222,6 +263,7 @@ namespace TheGameOfLife.ViewModels
             StopEvolving();
             _manager.ResetGen();
             UpdateResults();
+            Info = $"Restarted the game";
         }
 
         private bool CanReset()
@@ -260,6 +302,7 @@ namespace TheGameOfLife.ViewModels
 
             BuildGrid(ClearGameGrid());
             GameOn = true;
+            Info = $"Created the new game with a map size of {GameSizeX} x {GameSizeY}";
         }
 
         public bool CanCreateNewGame()
@@ -302,7 +345,7 @@ namespace TheGameOfLife.ViewModels
             {
                 Path = new PropertyPath("Alive"),
                 Mode = BindingMode.TwoWay,
-                Converter = new ColourConverter(aliveColour: Brushes.Green, deadColour: Brushes.White)
+                Converter = colourConverter
             };
             textBlock.SetBinding(TextBlock.BackgroundProperty, binding);
             return textBlock;

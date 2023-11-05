@@ -4,24 +4,25 @@ The project contains a wpf application running Game of Life:
 - Changable game map dimensions,
 - Possibility to edit the map when the game is running,
 - Save/Load the game (with all stats, settings and dimensions) to and from a savefile,
+- Validation of the loaded savefile
 - One step at a time or run evolutions automatically,
 - Possibility to reset the map,
 - Possibility to start another game with other map dimensions,
-- Possibility to "devolve" generations up to the start of the game,
+- Possibility to restore previous generations up to 1024 previous generations,
 - Statistics of births, deaths and cell alive,
-- Game settings can be changed on the fly during the game.
+- Game settings can be changed on the fly during the game,
+- Restricted/validated inputs,
+- Multiple colours game mode to represent births, deaths or alive and dead cells,
+- Screenshots of the game map
 
 
 TODO:
 - comments,
 - code refactorisation,
 - unit tests,
-- validation of savefiles,
-- save current state, not previous one,
-- restrict inputs,
 - work on better MVVM
-- add title
 
 
 ![alt text](./preview.png)
 ![alt text](./preview2.png)
+![alt text](./preview3.png)

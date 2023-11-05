@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
 
 namespace TheGameOfLife.Utils
@@ -12,10 +8,15 @@ namespace TheGameOfLife.Utils
     public class ParamsConverter : IValueConverter
     {
         private readonly uint _defaultValue;
+        private readonly int _minValue;
+        private readonly int _maxValue;
 
-        public ParamsConverter(uint defaultValue) 
+
+        public ParamsConverter(uint defaultValue, int minValue = 0, int maxValue = 100) 
         {
             _defaultValue = defaultValue;
+            _minValue = minValue;
+            _maxValue = maxValue;
         }
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -25,9 +26,18 @@ namespace TheGameOfLife.Utils
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (uint.TryParse(value as string, out uint result)) return result;
+            if (!int.TryParse(value as string, out int result)) return _defaultValue;
 
-            return _defaultValue;
+            if (result < _minValue)
+            {
+                if (result * 10 < _maxValue) return result*10;
+                return (uint)_minValue;
+            }
+
+            if(result > _maxValue) return (uint)_maxValue;
+
+            return (uint)result;
+            
         }
     }
 }

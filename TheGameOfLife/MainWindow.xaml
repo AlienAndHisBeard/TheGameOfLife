@@ -5,10 +5,32 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TheGameOfLife" xmlns:utils="clr-namespace:TheGameOfLife.Utils"
         mc:Ignorable="d"
-        Title="MainWindow" Height="500" Width="850" MinWidth="800" MinHeight="450">
+        Title="The Game Of Life" Height="500" Width="850" MinWidth="800" MinHeight="450">
     <Window.Resources>
+        
+        <!-- Default text style for text block -->
+        <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource {x:Type TextBlock}}" x:Key="TextStyle">
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="FontFamily" Value="Comic Sans MS"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        
+        <!-- Default text style for button -->
+        <Style TargetType="Button">
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="FontFamily" Value="Comic Sans MS"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="BorderBrush" Value="#FFB3B3B3"/>
+        </Style>
+        
+        <!-- Get and pass current game stats from bindings -->
         <Style TargetType="{x:Type TextBlock}" BasedOn="{StaticResource {x:Type TextBlock}}" x:Key="MultiBound">
             <Style.Triggers>
+                <!-- If the game is running -->
                 <DataTrigger Binding="{Binding Path=GameOn}" Value="True">
                     <Setter Property="Text">
                         <Setter.Value>
@@ -23,6 +45,7 @@
                         </Setter.Value>
                     </Setter>
                 </DataTrigger>
+                <!-- If no game yet -->
                 <DataTrigger Binding="{Binding Path=GameOn}" Value="False">
                     <Setter Property="Text">
                         <Setter.Value>
@@ -31,42 +54,124 @@
                     </Setter>
                 </DataTrigger>
             </Style.Triggers>
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="FontFamily" Value="Comic Sans MS"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        
+        <!-- Switch off button higligth -->
+        <Style TargetType="{x:Type Button}" BasedOn="{StaticResource {x:Type Button}}" x:Key="SwitchOffHilight">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Content="Colours"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="LightGray"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Window.Resources>
+
     <Grid Height="Auto">
-        <Grid Height="30" VerticalAlignment="Top" Margin="0,0,0,0" Background="White">
-            <TextBlock Height="13px" Width="80" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,0,320,0" Text="Underpop" TextAlignment="Center" FontFamily="Arial" FontWeight="Bold" FontSize="11"/>
-            <TextBox Name="Underpop" Height="17px" Width="80" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="0,13,0,0" TextAlignment="Center"></TextBox>
+        <Grid.RowDefinitions>
+            <RowDefinition Height = "35" />
+            <RowDefinition Height = "*" />
+            <RowDefinition Height = "auto" />
+            <RowDefinition Height = "30" />
+        </Grid.RowDefinitions>
+        <!-- Upper data bar -->
+        <Grid Height="35" VerticalAlignment="Top" Margin="0,0,0,0" Background="LightGray" >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width = "80" />
+                <ColumnDefinition Width = "80" />
+                <ColumnDefinition Width = "80" />
+                <ColumnDefinition Width = "*" />
+                <ColumnDefinition Width = "40" />
+                <ColumnDefinition Width = "40" />
+                <ColumnDefinition Width = "80" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height = "17" />
+                <RowDefinition Height = "18" />
+            </Grid.RowDefinitions>
+
+            <!-- Under population -->
+            <TextBlock Grid.Row = "0" Grid.Column="0" Width="80" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Left" Text="Underpop" Style="{StaticResource TextStyle}"/>
+            <TextBox Grid.Row = "1" Grid.Column="0" Name="Underpop" Width="80" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Left" TextAlignment="Center"></TextBox>
+
+            <!-- Over population -->
+            <TextBlock Grid.Row = "0" Grid.Column="1" Width="80" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Left" Text="Overpop" Style="{StaticResource TextStyle}"/>
+            <TextBox Grid.Row = "1" Grid.Column="1" Name="Overpop" Width="80" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Left" TextAlignment="Center"></TextBox>
+
+            <!-- Reproduction population -->
+            <TextBlock Grid.Row = "0" Grid.Column="2" Width="80" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Left" Text="Reproducepop" Style="{StaticResource TextStyle}"/>
+            <TextBox Grid.Row = "1" Grid.Column="2" Name="Reproducepop" Width="80" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Left" TextAlignment="Center"></TextBox>
+
+            <!-- Game stats bar -->
+            <TextBlock Grid.Row = "1" Grid.Column="3" Width="Auto" Background="LightGray" VerticalAlignment="Top" Style="{StaticResource MultiBound}"/>
+
+            <!-- Map size -->
+            <TextBlock Grid.Row = "0" Grid.Column="4" Grid.ColumnSpan="2" Width="80" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Right" Text="Map size X/Y:" Style="{StaticResource TextStyle}"/>
+            <TextBox Grid.Row = "1" Grid.Column="4" Name="SizeX" Width="40" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Right" TextAlignment="Center"></TextBox>
+            <TextBox Grid.Row = "1" Grid.Column="5" Name="SizeY" Width="40" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Right" TextAlignment="Center"></TextBox>
+
+            <!-- Create new game -->
+            <Button Grid.Row = "0" Grid.RowSpan = "2" Grid.Column="6" Name="New" Command="{Binding NewGameCommand}" Width="80" Height="35px" HorizontalAlignment="Right" VerticalAlignment="Top">New Game</Button>
+        </Grid>
+
+        <!-- Game grid -->
+        <Border Grid.Row = "1" BorderBrush="#FF636363" BorderThickness="2" Margin="2,2,2,2">
+            <Grid Name="GameGrid" ShowGridLines="True" Height="Auto" Margin="2,2,2,2"/>
+        </Border>
+
+        <!-- Logger -->
+        <TextBlock Grid.Row = "2"  Background="#FFF3F3F3" HorizontalAlignment="Stretch" FontWeight="Light" TextAlignment="Left" Style="{StaticResource TextStyle}" Height="20">
+            <Run Text=" > "/>
+            <TextBlock Text="{Binding Path=Info}"/>
+        </TextBlock>
+
+        <!-- Game buttons -->
+        <Grid Grid.Row = "3" DockPanel.Dock="Bottom" Height="30px" Width="Auto" Background="LightGray" VerticalAlignment="Bottom" Name="CommandPanel">
+            <Button Command="{Binding DevolveCommand}" Width="30" Height="30px" HorizontalAlignment="Left" Margin="5,0,0,0">&#5189;</Button>
+            <Button Command="{Binding EvolveCommand}" Width="30" Height="30px" HorizontalAlignment="Left" Margin="45,0,0,0">&#5184;</Button>
+            <Button Command="{Binding StartEvolvingCommand}" Width="30" Height="30px" HorizontalAlignment="Left" Margin="80,0,0,0" FontSize="16">&#187;</Button>
+            <Button Command="{Binding StopEvolvingCommand}" Width="30" Height="30px" HorizontalAlignment="Left" Margin="115,0,0,0">| |</Button>
+
+            <!-- Animated button -->
+            <Button Name="ColoursButton" Command="{Binding ToggleColoursCommand}" Width="80" Height="30px" HorizontalAlignment="Left" Margin="180,0,0,0" Style="{StaticResource SwitchOffHilight}" >Colours
+                <Button.Triggers>
+                    <EventTrigger RoutedEvent="Button.MouseEnter">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ColorAnimation Storyboard.TargetName="ColoursButton" Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" From="LightGray" By="White" To="Green" Duration="0:0:1" FillBehavior="HoldEnd"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                    <EventTrigger RoutedEvent="Button.MouseLeave">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ColorAnimation Storyboard.TargetName="ColoursButton" Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" From="Green" By="White" To="LightGray" Duration="0:0:1" FillBehavior="HoldEnd"/>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Button.Triggers>
+            </Button>
+
+            <!--<Button Command="{Binding PickStartingShapeCommand}" Width="80" Height="30px" HorizontalAlignment="Left" Margin="265,0,0,0">Shapes</Button>-->
+            <Button Command="{Binding ScreenshotCommand}" Width="80" Height="30px" HorizontalAlignment="Right" Margin="0,0,320,0">Screenshot</Button>
+            <Button Command="{Binding SaveCommand}" Width="80" Height="30px" HorizontalAlignment="Right" Margin="0,0,235,0">Save</Button>
+            <Button Command="{Binding LoadCommand}" Width="80" Height="30px" HorizontalAlignment="Right" Margin="0,0,150,0">Load</Button>
+            <Button Command="{Binding ResetCommand}" Width="100px" Height="30px" HorizontalAlignment="Right" VerticalAlignment="Top">Reset</Button>
             
-            <TextBlock Height="13px" Width="80" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="80,0,240,0" Text="Overpop" TextAlignment="Center" FontFamily="Arial" FontWeight="Bold" FontSize="11"/>
-            <TextBox Name="Overpop" Height="17px" Width="80" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="80,13,0,0" TextAlignment="Center"></TextBox>
-
-            <TextBlock Height="13px" Width="80" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="160,0,160,0" Text="Reproducepop" TextAlignment="Center" FontFamily="Arial" FontWeight="Bold" FontSize="11"/>
-            <TextBox Name="Reproducepop" Height="17px" Width="80" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="160,13,0,0" TextAlignment="Center"></TextBox>
-
-            <TextBlock Height="30px" Width="Auto" Background="LightGray" VerticalAlignment="Top" Margin="240,0,160,0" Style="{StaticResource MultiBound}" TextAlignment="Center" FontFamily="Arial" FontWeight="Bold" FontSize="13"/>
-
-            <TextBlock Height="13px" Width="80" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,0,80,0" Text="Map size X/Y:" TextAlignment="Center" FontFamily="Arial" FontWeight="Bold" FontSize="11"/>
-            <TextBox Name="SizeX" Height="17px" Width="40" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,13,120,0" TextAlignment="Center"></TextBox>
-            <TextBox Name="SizeY" Height="17px" Width="40" Background="LightGray" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,13,80,0" TextAlignment="Center"></TextBox>
         </Grid>
-        <Button Name="New" Command="{Binding NewGameCommand}" Width="80" Height="30px" HorizontalAlignment="Right" VerticalAlignment="Top">New Game</Button>
-
-        <Grid Name="GameGrid" ShowGridLines="True" Height="Auto" Margin="0,30,0,30"/>
-        <Grid DockPanel.Dock="Bottom" Height="30px" Width="Auto" Background="LightGray" VerticalAlignment="Bottom" Name="CommandPanel">
-            <Button Command="{Binding DevolveCommand}" Width="80" Height="30px" HorizontalAlignment="Left">DevolveOne</Button>
-            <Button Command="{Binding EvolveCommand}" Width="80" Height="30px" HorizontalAlignment="Left" Margin="85,0,0,0">EvolveOne</Button>
-            <Button Command="{Binding StartEvolvingCommand}" Width="80" Height="30px" HorizontalAlignment="Left" Margin="170,0,0,0" >StartEvolving</Button>
-            <Button Command="{Binding StopEvolvingCommand}" Width="80" Height="30px" HorizontalAlignment="Left" Margin="255,0,0,0">StopEvolving</Button>
-
-            <Button Command="{Binding SaveCommand}" Width="80" Height="30px" HorizontalAlignment="Left" Margin="420,0,0,0">Save</Button>
-            <Button Command="{Binding LoadCommand}" Width="80" Height="30px" HorizontalAlignment="Left" Margin="505,0,0,0">Load</Button>
-
-            <Button Command="{Binding ResetCommand}" Width="100px" Height="30px" RenderTransformOrigin="2.294,0.615" HorizontalAlignment="Right" VerticalAlignment="Top">Reset</Button>
-
-        </Grid>
-
-
     </Grid>
-
 </Window>

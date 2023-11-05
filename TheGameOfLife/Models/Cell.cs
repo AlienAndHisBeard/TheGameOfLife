@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TheGameOfLife.Models
 {
@@ -23,27 +18,22 @@ namespace TheGameOfLife.Models
 
         public uint X {  get; set; }
         public uint Y { get; set; }
-        private bool alive;
-        private bool wasAlive;
-        public bool Alive 
+        private int alive;
+        public int Alive 
         { 
             get {  return alive; } 
             set 
             { 
-                if (alive && !value) wasAlive = true;
                 alive = value;
                 OnPropertyChanged();
             } 
         }
-        public bool WasAlive { get { return wasAlive; } }
 
-        public Cell(uint x, uint y, bool alive) 
+        public Cell(uint x, uint y, int alive) 
         {
             X = x;
             Y = y;
             Alive = alive;
-            if(alive) { this.wasAlive = true; }
-            else { this.wasAlive = false; }
         }
     }
 }

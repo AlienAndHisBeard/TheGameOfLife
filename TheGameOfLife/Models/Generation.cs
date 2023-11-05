@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media;
 using static TheGameOfLife.Models.Structs.Structs;
 
 namespace TheGameOfLife.Models
@@ -41,11 +37,11 @@ namespace TheGameOfLife.Models
             return gameMap[x, y];
         }
 
-        public void SetCell(uint x, uint y, bool alive) 
+        public void SetCell(uint x, uint y, int alive) 
         {
             Cell cell = GetCell(x, y) ?? throw new ArgumentOutOfRangeException("Out of map");
-            if (alive) AliveCellsCount++;
-            else AliveCellsCount--;
+            if (alive == 3) AliveCellsCount++;
+            else if (alive == 1) AliveCellsCount--;
 
             cell.Alive = alive;
         }
@@ -54,10 +50,11 @@ namespace TheGameOfLife.Models
         {
             Cell cell = GetCell(x, y) ?? throw new ArgumentOutOfRangeException("Out of map");
 
-            if (!cell.Alive) AliveCellsCount++;
+            if (cell.Alive < 2 ) AliveCellsCount++;
             else AliveCellsCount--;
 
-            cell.Alive = !cell.Alive;
+            if (cell.Alive >= 2) cell.Alive = 0;
+            else cell.Alive = 2;
         }
 
         private void Init()
@@ -66,17 +63,19 @@ namespace TheGameOfLife.Models
             {
                 for (uint x = 0; x < MapSize.SizeX; x++)
                 {
-                    gameMap[x, y] = new Cell(x, y, false);
+                    gameMap[x, y] = new Cell(x, y, 0);
                 }
             }
         }
 
-        private void Init(List<Tuple<uint, uint, bool>> cells)
+        private void Init(List<Tuple<uint, uint, int>> cells)
         {
             foreach( var cell in cells)
             {
-                if (uint.MaxValue == cell.Item1 || uint.MaxValue == cell.Item2) throw new Exception("Wrong save file");
-                if (cell.Item1 >= MapSize.SizeX || cell.Item2 >= MapSize.SizeY) throw new Exception("Wrong save file");
+                if (uint.MaxValue == cell.Item1 || uint.MaxValue == cell.Item2) 
+                    throw new Exception("Wrong save file");
+                if (cell.Item1 >= MapSize.SizeX || cell.Item2 >= MapSize.SizeY) 
+                    throw new Exception("Wrong save file");
                 gameMap[cell.Item1, cell.Item2] = new Cell(cell.Item1, cell.Item2, cell.Item3);
             }
         }
@@ -87,18 +86,19 @@ namespace TheGameOfLife.Models
             {
                 for (uint x = 0; x < MapSize.SizeX; x++)
                 {
-                    SetCell(x, y, false);
+                    SetCell(x, y, 0);
                 }
             }
             AliveCellsCount = 0;
         }
 
-        public void Load(EvolutionResults res, GameSettings gameSettings)
+        public void UpdateGameSettings(uint minPop, uint maxPop, uint reproducePop, int aliveCellsCount)
         {
-            AliveCellsCount = res.CellCount;
-            GameSettings = gameSettings;
+            GameSettings.MinPop = minPop;
+            GameSettings.MaxPop = maxPop;
+            GameSettings.ReproducePop = reproducePop;
+            AliveCellsCount = aliveCellsCount;
         }
-
         public void UpdateGameSettings(uint minPop, uint maxPop, uint reproducePop)
         {
             GameSettings.MinPop = minPop;
@@ -106,6 +106,11 @@ namespace TheGameOfLife.Models
             GameSettings.ReproducePop = reproducePop;
         }
 
+        public void UpdateGameSettings(GameSettings gameSettings, int aliveCellsCount)
+        {
+            GameSettings = gameSettings;
+            AliveCellsCount = aliveCellsCount;
+        }
         public void UpdateGameSettings(GameSettings gameSettings)
         {
             GameSettings = gameSettings;
